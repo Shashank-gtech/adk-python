@@ -32,8 +32,7 @@ let CONSTANT_VALUES = {
       EVAL: 'eval',
       TRACING: 'tracing',
       WEB: 'web',
-      WORKFLOW: 'workflow',
-      NEEDS_REVIEW: 'needs review'
+      WORKFLOW: 'workflow'
     },
     STATE: { CLOSED: 'closed' }
   },

@@ -43,8 +43,7 @@ module.exports = async ({ github, context }) => {
       label.name.includes(CONSTANT_VALUES.GLOBALS.LABELS.EVAL) ||
       label.name.includes(CONSTANT_VALUES.GLOBALS.LABELS.TRACING) ||
       label.name.includes(CONSTANT_VALUES.GLOBALS.LABELS.WEB) ||
-      label.name.includes(CONSTANT_VALUES.GLOBALS.LABELS.WORKFLOW) ||
-      label.name.includes(CONSTANT_VALUES.GLOBALS.LABELS.NEEDS_REVIEW)) {
+      label.name.includes(CONSTANT_VALUES.GLOBALS.LABELS.WORKFLOW)) {
       console.log(
         `label-${label.name}, posting CSAT survey for issue =${issue}`);
       baseUrl = CONSTANT_VALUES.MODULE.CSAT.BASE_URL;
