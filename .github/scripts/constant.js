@@ -17,7 +17,6 @@ limitations under the License.
 let CONSTANT_VALUES = {
   GLOBALS: {
     LABELS: {
-      STALE: 'stale',
       BUG: 'bug',
       CORE: 'core',
       TOOLS: 'tools',
@@ -34,7 +33,6 @@ let CONSTANT_VALUES = {
       TRACING: 'tracing',
       WEB: 'web',
       WORKFLOW: 'workflow',
-      REQUEST_CLARIFICATION: 'request clarification',
       NEEDS_REVIEW: 'needs review'
     },
     STATE: { CLOSED: 'closed' }
