@@ -13,59 +13,47 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
+
 const CONSTANT_VALUES = require('./constant');
 
 /**
- * Invoked from stale_csat.js and csat.yaml file to post survey link
- * in closed issue.
+ * Invoked from csat.yml workflow file to post survey link
+ * in closed issues.
  * @param {!Object.<string,!Object>} github contains pre defined functions.
  *  context Information about the workflow run.
  * @return {null}
  */
 module.exports = async ({ github, context }) => {
   const issue = context.payload.issue.html_url;
-  let baseUrl = '';
-  // Loop over all ths label present in issue and check if specific label is
-  // present for survey link.
-  for (const label of context.payload.issue.labels) {
-    if (label.name.includes(CONSTANT_VALUES.GLOBALS.LABELS.BUG) ||
-      label.name.includes(CONSTANT_VALUES.GLOBALS.LABELS.CORE) ||
-      label.name.includes(CONSTANT_VALUES.GLOBALS.LABELS.TOOLS) ||
-      label.name.includes(CONSTANT_VALUES.GLOBALS.LABELS.SERVICES) ||
-      label.name.includes(CONSTANT_VALUES.GLOBALS.LABELS.MODELS) ||
-      label.name.includes(CONSTANT_VALUES.GLOBALS.LABELS.MCP) ||
-      label.name.includes(CONSTANT_VALUES.GLOBALS.LABELS.AUTH) ||
-      label.name.includes(CONSTANT_VALUES.GLOBALS.LABELS.LIVE) ||
-      label.name.includes(CONSTANT_VALUES.GLOBALS.LABELS.DOCUMENTATION) ||
-      label.name.includes(CONSTANT_VALUES.GLOBALS.LABELS.GOOD_FIRST_ISSUE) ||
-      label.name.includes(CONSTANT_VALUES.GLOBALS.LABELS.AGENT_ENGINE) ||
-      label.name.includes(CONSTANT_VALUES.GLOBALS.LABELS.BQ) ||
-      label.name.includes(CONSTANT_VALUES.GLOBALS.LABELS.EVAL) ||
-      label.name.includes(CONSTANT_VALUES.GLOBALS.LABELS.TRACING) ||
-      label.name.includes(CONSTANT_VALUES.GLOBALS.LABELS.WEB) ||
-      label.name.includes(CONSTANT_VALUES.GLOBALS.LABELS.WORKFLOW) ||
-      label.name.includes(CONSTANT_VALUES.GLOBALS.LABELS.REQUEST_CLARIFICATION) ||
-      label.name.includes(CONSTANT_VALUES.GLOBALS.LABELS.NEEDS_REVIEW)) {
-      console.log(
-        `label-${label.name}, posting CSAT survey for issue =${issue}`);
-      baseUrl = CONSTANT_VALUES.MODULE.CSAT.BASE_URL;
 
-      const yesCsat = `<a href="${baseUrl + CONSTANT_VALUES.MODULE.CSAT.SATISFACTION_PARAM +
-        CONSTANT_VALUES.MODULE.CSAT.YES +
-        CONSTANT_VALUES.MODULE.CSAT.ISSUEID_PARAM + encodeURIComponent(issue)}"> ${CONSTANT_VALUES.MODULE.CSAT.YES}</a>`;
+  // Check if any label matches (case-insensitive) the supported CSAT labels.
+  const supportedLabels = Object.values(CONSTANT_VALUES.GLOBALS.LABELS);
+  const hasMatchingLabel = context.payload.issue.labels.some(label => {
+    const name = label.name.toLowerCase();
+    return supportedLabels.some(supportedLabel => name.includes(supportedLabel));
+  });
 
-      const noCsat = `<a href="${baseUrl + CONSTANT_VALUES.MODULE.CSAT.SATISFACTION_PARAM +
-        CONSTANT_VALUES.MODULE.CSAT.NO +
-        CONSTANT_VALUES.MODULE.CSAT.ISSUEID_PARAM + encodeURIComponent(issue)}"> ${CONSTANT_VALUES.MODULE.CSAT.NO}</a>`;
-      const comment = CONSTANT_VALUES.MODULE.CSAT.MSG + '\n' + yesCsat + '\n' +
-        noCsat + '\n';
-      let issueNumber = context.issue.number ?? context.payload.issue.number;
-      await github.rest.issues.createComment({
-        issue_number: issueNumber,
-        owner: context.repo.owner,
-        repo: context.repo.repo,
-        body: comment
-      });
-    }
+  if (hasMatchingLabel) {
+    console.log(`Posting CSAT survey for issue =${issue}`);
+    const baseUrl = CONSTANT_VALUES.MODULE.CSAT.BASE_URL;
+
+    const yesCsat = `<a href="${baseUrl + CONSTANT_VALUES.MODULE.CSAT.SATISFACTION_PARAM +
+      CONSTANT_VALUES.MODULE.CSAT.YES +
+      CONSTANT_VALUES.MODULE.CSAT.ISSUEID_PARAM + encodeURIComponent(issue)}"> ${CONSTANT_VALUES.MODULE.CSAT.YES}</a>`;
+
+    const noCsat = `<a href="${baseUrl + CONSTANT_VALUES.MODULE.CSAT.SATISFACTION_PARAM +
+      CONSTANT_VALUES.MODULE.CSAT.NO +
+      CONSTANT_VALUES.MODULE.CSAT.ISSUEID_PARAM + encodeURIComponent(issue)}"> ${CONSTANT_VALUES.MODULE.CSAT.NO}</a>`;
+
+    const comment = CONSTANT_VALUES.MODULE.CSAT.MSG + '\n' + yesCsat + '\n' +
+      noCsat + '\n';
+    const issueNumber = context.issue.number ?? context.payload.issue.number;
+
+    await github.rest.issues.createComment({
+      issue_number: issueNumber,
+      owner: context.repo.owner,
+      repo: context.repo.repo,
+      body: comment
+    });
   }
 };
