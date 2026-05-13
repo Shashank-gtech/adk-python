@@ -50,4 +50,3 @@ let CONSTANT_VALUES = {
 
 };
 module.exports = CONSTANT_VALUES;
-
